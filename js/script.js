@@ -14,10 +14,10 @@ function drawImageActualSize() {
 
     // will draw the image as actual size ignoring the custom size of 60x45
     // given in the constructor
-    ctx.drawImage(this, 0, 0);
+    // ctx.drawImage(this, 0, 0);
 
     // To use the custom size we'll have to specify the scale parameters
     // using the element's width and height properties - lets draw one
     // on top in the corner:
-    // ctx.drawImage(this, 0, 0, this.width, this.height);
+    ctx.drawImage(this, 0, 0, this.width, this.height);
 }
