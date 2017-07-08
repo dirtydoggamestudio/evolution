@@ -6,8 +6,8 @@ var green_img = new Image(64, 54);   // using optional size for image
 red_img.onload = main; // draw when image has loaded
 
 // load an image of intrinsic size 300x227 in CSS pixels
-red_img.src = 'assets/red.png';
-green_img.src = 'assets/green.png';
+red_img.src = 'assets/cell_evil.png';
+green_img.src = 'assets/cell_neutral.png';
 
 function drawImageActualSize() {
     // use the intrinsic size of image in CSS pixels for the canvas element
