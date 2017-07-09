@@ -1,7 +1,7 @@
 // Source code: http://jsbin.com/conuloxiwo/edit?html,css,js,output
-//img x/y = 367/350
+
 var canvas, ctx, width, height;
-var rect = {x:0, y:0, radius: 30, width:367, height:350, v:1};
+var rect = {x:0, y:0, radius:30, width:0, height:0, v:1};
 var mousepos = {x:0, y:0};
 var spritesZombie = {
     // As many sprites as direction
@@ -30,7 +30,7 @@ var ZOMBIE_HEIGHT = SPRITE_HEIGHT*scale;
 var NB_DIRECTIONS = 8;
 var NB_FRAMES_PER_POSTURE = 1;
 var ZOMBIES_NUM = 1;
-var ZombiesFramesOfAnimationBetweenRedraws = 15;
+var ZombiesFramesOfAnimationBetweenRedraws = 1;
 var SPEED  = 1;
 var FIRSTFRAME = 4;
 var zombieArray = [];
@@ -196,25 +196,29 @@ function SpriteImage(img, x, y, width, height) {
     };
 }
 //****************************************************************
-function Sprite(spritesheet, x, y, width, height, nbImages, nbFramesOfAnimationBetweenRedraws) {
+function Sprite(spritesheet, x, y, width, height, nbImages,
+                nbFramesOfAnimationBetweenRedraws) {
     this.spriteImages = [];
     this.currentFrame = 0;
     this.nbFrames = nbImages;
     this.nbTicksBetweenRedraws = nbFramesOfAnimationBetweenRedraws;
     this.nbCurrentTicks=0;
 
-    // let's process the row in the big image, and extract all sprites for a given posture
+    // let's process the row in the big image, and extract all sprites
+    // for a given posture
     // of animation
     // we extract the subimage of WALKING
     for(var i = FIRSTFRAME; i < nbImages + FIRSTFRAME; i++) {
 
-        this.spriteImages[i - FIRSTFRAME] = new SpriteImage(spritesheet, x+i*width, y, width, height);
+        this.spriteImages[i - FIRSTFRAME] = new SpriteImage(spritesheet,
+            x+i*width, y, width, height);
     }
 
     // we extract the subimage of ATACKING
     for(var j = FIRSTFRAME; j < nbImages + FIRSTFRAME; j++) {
 
-        this.spriteImages[j - FIRSTFRAME] = new SpriteImage(spritesheet, x+j*width, y, width, height);
+        this.spriteImages[j - FIRSTFRAME] = new SpriteImage(spritesheet,
+            x+j*width, y, width, height);
     }
 
     this.renderMoving = function(zombie, scale) {
@@ -231,7 +235,8 @@ function Sprite(spritesheet, x, y, width, height, nbImages, nbFramesOfAnimationB
         //ctx.translate(z.x -this.width/2, z.y -this.height/2);
 
         // draw the sprite with the current image
-        this.spriteImages[z.currentFrame].render(z.x, z.y, scale,z.width, z.height, z.angle);
+        this.spriteImages[z.currentFrame].render(z.x, z.y,
+            scale,z.width, z.height, z.angle);
 
 
         // increment the number of ticks of animation
