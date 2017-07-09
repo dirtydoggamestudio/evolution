@@ -47,7 +47,9 @@ function mainloop() {
 
     cellsArr.forEach(function(cell){
         console.log('cellsArr function');
-        ctx.drawImage(spritesheet, cell.cellX, cell.cellY);
+        // ctx.drawImage(spritesheet, cell.cellX, cell.cellY);
+
+        ctx.drawImage(spritesheet, 0, 0, 128, 128, cell.cellX, cell.cellY, 128, 128);
     });
 
     // 2) move object
