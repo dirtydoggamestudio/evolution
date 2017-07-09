@@ -22,8 +22,8 @@ DIR_S  = 7;
 // info about spritesheet
 //var SPRITE_WIDTH = 129;
 //var SPRITE_HEIGHT = 130;
-var SPRITE_WIDTH = 64;
-var SPRITE_HEIGHT = 64;
+var SPRITE_WIDTH = 128;
+var SPRITE_HEIGHT = 128;
 var scale = 1;
 var ZOMBIE_WIDTH = SPRITE_WIDTH*scale;
 var ZOMBIE_HEIGHT = SPRITE_HEIGHT*scale;
@@ -32,7 +32,7 @@ var NB_FRAMES_PER_POSTURE = 1;
 var ZOMBIES_NUM = 1;
 var ZombiesFramesOfAnimationBetweenRedraws = 1;
 var SPEED  = 1;
-var FIRSTFRAME = 4;
+var FIRSTFRAME = 1;
 var zombieArray = [];
 var dir = DIR_S;
 
@@ -85,7 +85,7 @@ window.onload = function(){
 
     // load the spritesheet
     spritesheet = new Image();
-    spritesheet.src = "assets/green1.png";
+    spritesheet.src = "assets/green1c.gif";
 
     spritesheet.onload = function() {
 
