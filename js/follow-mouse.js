@@ -45,6 +45,11 @@ function mainloop() {
     // 1) clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    cellsArr.forEach(function(cell){
+        console.log('cellsArr function');
+        ctx.drawImage(spritesheet, cell.cellX, cell.cellY);
+    });
+
     // 2) move object
     var dx = rect.x - mousepos.x;
     var dy = rect.y - mousepos.y;
@@ -94,7 +99,7 @@ window.onload = function(){
 
         //Create zombies
         createZombies(ZOMBIES_NUM);
-
+        createCells();
         mainloop();
     };
 
@@ -126,6 +131,24 @@ function getMousePos(canvas, evt) {
         y: evt.clientY - rect.top
     };
 }
+
+function createCell(cellX, cellY, cellType){
+    this.cellX = cellX;
+    this.cellY = cellY;
+    this.cellType = cellType;
+
+}
+
+var cellsArr = [];
+
+function createCells(){
+    // console.log('cellsArr function');
+    for(var x=0; x<10; x++){
+        cellsArr.push(new createCell(Math.random() * 500, Math.random() * 500, 0));
+    }
+}
+
+
 //****************************************************************
 function Zombie(x, y, angle, speed, diameter) {
     this.x = x;
