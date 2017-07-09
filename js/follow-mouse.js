@@ -40,16 +40,40 @@ var moving = false;
 var x = 0;
 var y = 0;
 
+var bgmusic = new Audio();
+
+function updateCell(cell){
+    var d2x = (Math.random() * 1 - 1 / 2); //change dx and dy by random value
+    var d2y = (Math.random() * 1 - 1 / 2);
+
+    if (Math.abs(d2x + cell.dx) > 2) // start slowing down if going too fast
+        d2x *= -1;
+    if (Math.abs(d2y + cell.dy) > 2) d2y *= -1;
+
+    cell.dx += d2x;
+    cell.dy += d2y;
+
+    if ((cell.cellX + cell.dx) < 0 || (cell.cellX + cell.dx) > canvas.width) // bounce off walls
+        cell.dx *= -1;
+    if ((cell.cellY + cell.dy) < 0 || (cell.cellY + cell.dy) > canvas.height) cell.dy *= -1;
+
+    cell.cellX += cell.dx;
+    cell.cellY += cell.dx;
+
+}
 
 function mainloop() {
     // 1) clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+
     cellsArr.forEach(function(cell){
         console.log('cellsArr function');
         // ctx.drawImage(spritesheet, cell.cellX, cell.cellY);
 
-        ctx.drawImage(spritesheet, 0, 0, 128, 128, cell.cellX, cell.cellY, 128, 128);
+        updateCell(cell);
+
+        ctx.drawImage(spritesheet, 0, 384, 128, 128, cell.cellX, cell.cellY, 128, 128);
     });
 
     // 2) move object
@@ -94,7 +118,11 @@ window.onload = function(){
     spritesheet = new Image();
     spritesheet.src = "assets/green1c.gif";
 
+    bgmusic.src = "assets/Game music/Militaire Electronic.mp3";
+
     spritesheet.onload = function() {
+        bgmusic.loop = true;
+        bgmusic.play();
 
         initSprites(spritesheet, SPRITE_WIDTH, SPRITE_HEIGHT,
             NB_DIRECTIONS, NB_FRAMES_PER_POSTURE);
@@ -137,6 +165,8 @@ function getMousePos(canvas, evt) {
 function createCell(cellX, cellY, cellType){
     this.cellX = cellX;
     this.cellY = cellY;
+    this.dx = 0;
+    this.dy = 0;
     this.cellType = cellType;
 
 }
