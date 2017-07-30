@@ -1,10 +1,8 @@
-// Source code: http://jsbin.com/conuloxiwo/edit?html,css,js,output
-
 var canvas, ctx, width, height;
 var rect = {x:0, y:0, radius:30, width:0, height:0, v:1};
 var mousepos = {x:0, y:0};
 
-var spritesZombie = {
+var spritesPlayer = {
     // As many sprites as direction
     // Each element in this array contains n images
     sprites : []
@@ -26,18 +24,18 @@ DIR_S  = 7;
 var SPRITE_WIDTH = 128;
 var SPRITE_HEIGHT = 128;
 var scale = 1;
-var ZOMBIE_WIDTH = SPRITE_WIDTH*scale;
-var ZOMBIE_HEIGHT = SPRITE_HEIGHT*scale;
+var PLAYER_WIDTH = SPRITE_WIDTH*scale;
+var PLAYER_HEIGHT = SPRITE_HEIGHT*scale;
 var NB_DIRECTIONS = 8;
 var NB_FRAMES_PER_POSTURE = 1;
-var ZOMBIES_NUM = 1;
-var ZombiesFramesOfAnimationBetweenRedraws = 1;
+var PLAYERS_NUM = 1;
+var PlayersFramesOfAnimationBetweenRedraws = 1;
 var SPEED  = 1;
 var FIRSTFRAME = 1;
-var zombieArray = [];
-var dir = DIR_S;
+var playerArray = [];
+// var dir = DIR_S;
 
-var moving = false;
+// var moving = false;
 var x = 0;
 var y = 0;
 
@@ -61,6 +59,8 @@ function updateCell(cell){
     cell.cellX += cell.dx;
     cell.cellY += cell.dx;
 
+    return cell;
+
 }
 
 function mainloop() {
@@ -75,7 +75,10 @@ function mainloop() {
         updateCell(cell);
 
         ctx.drawImage(spritesheet, 0, 384, 128, 128, cell.cellX, cell.cellY, 128, 128);
+
     });
+
+
 
     // 2) move object
     var dx = rect.x - mousepos.x;
@@ -85,26 +88,43 @@ function mainloop() {
     rect.x -= rect.v*Math.cos(angle);
     rect.y -= rect.v*Math.sin(angle);
 
+    // get xy coordinates of object
+
+
     // 3) draw object
     //drawRectangle(angle);
 
-    // For each zombie in the array
-    for(var i=0; i < zombieArray.length; i++) {
-        var zomb = zombieArray[i];
+    // For each player in the spritesheet array
+    for(var i=0; i < playerArray.length; i++) {
 
-        // 1) Move the zombie
-        zomb.move();
+        var play = playerArray[i];
+
+
+        // 1) Move the player
+        play.move();
 
         // 2) collision test with walls
-        //collisionTestWithWalls(zomb);
+        //collisionTestWithWalls(play);
 
-        // 3) draw the zombie
-        zomb.draw();
+        // 3) draw the player
+        play.draw();
+
+
+
     }
+
+
+    // console.log(play.x);
+
 
     // 4) request new frame
     window.requestAnimationFrame(mainloop);
+
+// console.log(play.x);
 }
+
+
+
 
 window.onload = function(){
     canvas = document.querySelector("#canvas");
@@ -128,13 +148,14 @@ window.onload = function(){
         initSprites(spritesheet, SPRITE_WIDTH, SPRITE_HEIGHT,
             NB_DIRECTIONS, NB_FRAMES_PER_POSTURE);
 
-        //Create zombies
-        createZombies(ZOMBIES_NUM);
+        //Create players
+        createPlayers(PLAYERS_NUM);
         createCells();
+
         mainloop();
     };
 
-    //mainloop();
+
 };
 
 //************************************************************
@@ -176,14 +197,14 @@ var cellsArr = [];
 
 function createCells(){
     // console.log('cellsArr function');
-    for(var x=0; x<5; x++){
+    for(var x=0; x<2; x++){
         cellsArr.push(new createCell(Math.random() * canvas.width, Math.random() * canvas.height, 0));
     }
 }
 
 
 //****************************************************************
-function Zombie(x, y, angle, speed, diameter) {
+function Player(x, y, angle, speed, diameter) {
     this.x = x;
     this.y = y;
     this.width = SPRITE_WIDTH;
@@ -201,15 +222,15 @@ function Zombie(x, y, angle, speed, diameter) {
 
     this.draw = function() {
 
-        spritesZombie[this.dir].renderMoving(this, scale);
+        spritesPlayer[this.dir].renderMoving(this, scale);
 
     };
 
 
     this.move = function() {
 
-        var dx = (this.x+ZOMBIE_WIDTH/2) - mousepos.x,
-            dy = (this.y+ZOMBIE_HEIGHT/2) - mousepos.y;
+        var dx = (this.x+PLAYER_WIDTH/2) - mousepos.x,
+            dy = (this.y+PLAYER_HEIGHT/2) - mousepos.y;
 
 //   var dx = (this.x) - mousepos.x,
         //  dy = (this.y) - mousepos.y;
@@ -277,10 +298,10 @@ function Sprite(spritesheet, x, y, width, height, nbImages,
             x+j*width, y, width, height);
     }
 
-    this.renderMoving = function(zombie, scale) {
+    this.renderMoving = function(player, scale) {
         // renders animated sprite, changed every nbTicksBetweenRedraws
         // the frame number
-        z = zombie;
+        z = player;
 
         // These two lines move the coordinate system
         //ctx.translate(this.x, this.y);
@@ -324,34 +345,64 @@ function initSprites(spritesheet, spriteWidth, spriteHeight, nbLinesOfSprites,
         var sprite = new Sprite(spritesheet, 0, yLineForCurrentDir,
             spriteWidth, spriteHeight,
             nbSpritesPerLine,
-            ZombiesFramesOfAnimationBetweenRedraws); // draw every 1s
-        spritesZombie[i] = sprite;
+            PlayersFramesOfAnimationBetweenRedraws); // draw every 1s
+        spritesPlayer[i] = sprite;
     }
 }
 //****************************************************************
-function createZombies(numberOfZombies) {
-    for(var i=0; i < numberOfZombies; i++) {
-        x = (width-ZOMBIE_WIDTH)*Math.random();
-        y = (height-ZOMBIE_HEIGHT)*Math.random();
+function createPlayers(numberOfPlayers) {
+    for(var i=0; i < numberOfPlayers; i++) {
+        x = (width-PLAYER_WIDTH)*Math.random();
+        y = (height-PLAYER_HEIGHT)*Math.random();
 
         console.log('x',x);
         console.log('y',y);
 
-        // Create a zombie with random position and speed
-        var zombie =  new Zombie(x,
-            y,
+        // Create a player with random position and speed
+        var player =  new Player(x,y,
             //(10*Math.random())-5,
             (2*Math.PI)*Math.random(),//angle
             //angle,
             //(10*Math.random())-5,
             SPEED,
-            ZOMBIE_WIDTH); // diameter, change if you like.
+            PLAYER_WIDTH); // diameter, change if you like.
 
         // Add it to the array
-        zombieArray[i] = zombie;
+        playerArray[i] = player;
     }
 
 }
+
+
+
+/*function detectCollison(PlayPos, CellPos){
+
+    // local variables: console.log(play.x) and console.log(cell.cellX)
+    // get them from functions updateCell mainloop
+    if (PlayPos.x < CellPos.x + CellPos.width &&
+        PlayPos.x + PlayPos.width > CellPos.x &&
+        PlayPos.y < CellPos.y + CellPos.height &&
+        PlayPos.height + PlayPos.y > CellPos.y)
+    {
+        console.log('collision detected!');
+    }
+
+
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /** set width of gameplay area to size of viewport **/
@@ -363,8 +414,8 @@ function createZombies(numberOfZombies) {
     window.addEventListener('resize', resizeCanvas, false);
 
     function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth - 20; //user agent adds margin to body
+        canvas.height = window.innerHeight - 20;
 
         /**
          * Your drawings need to be inside this function otherwise they will be reset when
