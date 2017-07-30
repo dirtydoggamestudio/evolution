@@ -3,6 +3,7 @@
 var canvas, ctx, width, height;
 var rect = {x:0, y:0, radius:30, width:0, height:0, v:1};
 var mousepos = {x:0, y:0};
+
 var spritesZombie = {
     // As many sprites as direction
     // Each element in this array contains n images
@@ -118,7 +119,7 @@ window.onload = function(){
     spritesheet = new Image();
     spritesheet.src = "assets/green1c.gif";
 
-    bgmusic.src = "assets/Game music/Militaire Electronic.mp3";
+    bgmusic.src = "assets/audio/militaire_electronic.mp3";
 
     spritesheet.onload = function() {
         bgmusic.loop = true;
@@ -138,7 +139,7 @@ window.onload = function(){
 
 //************************************************************
 
-function drawRectangle(angle) {
+/*function drawRectangle(angle) {
     ctx.save();
 
     // These two lines move the coordinate system
@@ -151,7 +152,7 @@ function drawRectangle(angle) {
 
     ctx.fillRect(0, 0, rect.width, rect.height);
     ctx.restore();
-}
+}*/
 
 function getMousePos(canvas, evt) {
     // necessary to take into account CSS boudaries
@@ -175,8 +176,8 @@ var cellsArr = [];
 
 function createCells(){
     // console.log('cellsArr function');
-    for(var x=0; x<10; x++){
-        cellsArr.push(new createCell(Math.random() * 500, Math.random() * 500, 0));
+    for(var x=0; x<5; x++){
+        cellsArr.push(new createCell(Math.random() * canvas.width, Math.random() * canvas.height, 0));
     }
 }
 
@@ -351,4 +352,30 @@ function createZombies(numberOfZombies) {
     }
 
 }
+
+
+/** set width of gameplay area to size of viewport **/
+(function() {
+    var canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d');
+
+    // resize the canvas to fill browser window dynamically
+    window.addEventListener('resize', resizeCanvas, false);
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        /**
+         * Your drawings need to be inside this function otherwise they will be reset when
+         * you resize the browser window and the canvas goes will be cleared.
+         */
+        drawStuff();
+    }
+    resizeCanvas();
+
+    function drawStuff() {
+        // do your drawing stuff here
+    }
+})();
 
