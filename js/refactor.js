@@ -1,6 +1,7 @@
 var canvas, ctx, width, height;
 var rect = {x:0, y:0, radius:30, width:0, height:0, v:1};
 var mousepos = {x:0, y:0};
+var isdead = false;
 
 var spritesPlayer = {
     // As many sprites as direction
@@ -52,31 +53,33 @@ function updateCell(cell){
     cell.dx += d2x;
     cell.dy += d2y;
 
-    if ((cell.cellX + cell.dx) < 0 || (cell.cellX + cell.dx) > canvas.width) // bounce off walls
+    if ((cell.cellX + cell.dx) < 128 || (cell.cellX + cell.dx) > canvas.width) // bounce off walls
         cell.dx *= -1;
-    if ((cell.cellY + cell.dy) < 0 || (cell.cellY + cell.dy) > canvas.height) cell.dy *= -1;
+    if ((cell.cellY + cell.dy) < 128 || (cell.cellY + cell.dy) > canvas.height) cell.dy *= -1;
 
     cell.cellX += cell.dx;
     cell.cellY += cell.dx;
-
-    return cell;
-
 }
 
 function mainloop() {
+
+    var mousePX = mousepos.x;
+    var mousePY = mousepos.y;
+    var mouseconsole = "Mouse X,Y: " + mousePX + ", " + mousePY;
+    console.log(mouseconsole);
+
+    playeralive();
+
+}
+
+
+
+function playeralive()
+{
     // 1) clear screen
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-
-    cellsArr.forEach(function(cell){
-        // console.log('cellsArr function');
-        // ctx.drawImage(spritesheet, cell.cellX, cell.cellY);
-
-        updateCell(cell);
-
-        ctx.drawImage(spritesheet, 0, 384, 128, 128, cell.cellX, cell.cellY, 128, 128);
-
-    });
+    cellArray();
 
     // 2) move object
     var dx = rect.x - mousepos.x;
@@ -87,9 +90,8 @@ function mainloop() {
     rect.y -= rect.v*Math.sin(angle);
 
     // 3) draw object
-    //drawRectangle(angle);
 
-    // Pull player image from spritesheet array
+    // For each player in the spritesheet array
     for(var i=0; i < playerArray.length; i++) {
 
         var play = playerArray[i];
@@ -108,12 +110,24 @@ function mainloop() {
 
     }
 
-    // 4) request new frame
-    window.requestAnimationFrame(mainloop);
+   detectCollison(play,rect);
 
+    if(isdead == false){
+        window.requestAnimationFrame(mainloop);
+    }
+    if(isdead == true)
+    {
+        window.requestAnimationFrame(playerdead);
+    }
 
 }
 
+function playerdead()
+{
+    console.log('you are dead');
+    // 1) clear screen
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 
 
 
@@ -149,22 +163,17 @@ window.onload = function(){
 
 };
 
-//************************************************************
+function cellArray(){
 
-/*function drawRectangle(angle) {
-    ctx.save();
+    cellsArr.forEach(function(cell){
+        // console.log('cellsArr function');
 
-    // These two lines move the coordinate system
-    ctx.translate(rect.x, rect.y);
-    ctx.rotate(angle);
-    // recenter the coordinate system in the middle
-    // the rectangle. Like that it will rotate around
-    // this point instead of top left corner
-    ctx.translate(-rect.width/2, -rect.height/2);
+        updateCell(cell);
 
-    ctx.fillRect(0, 0, rect.width, rect.height);
-    ctx.restore();
-}*/
+        ctx.drawImage(spritesheet, 0, 384, 128, 128, cell.cellX, cell.cellY, 128, 128);
+
+    });
+}
 
 function getMousePos(canvas, evt) {
     // necessary to take into account CSS boudaries
@@ -188,7 +197,7 @@ var cellsArr = [];
 
 function createCells(){
     // console.log('cellsArr function');
-    for(var x=0; x<2; x++){
+    for(var x=0; x<1; x++){
         cellsArr.push(new createCell(Math.random() * canvas.width, Math.random() * canvas.height, 0));
     }
 }
@@ -200,8 +209,6 @@ function Player(x, y, angle, speed, diameter) {
     this.y = y;
     this.width = SPRITE_WIDTH;
     this.height = SPRITE_HEIGHT;
-    //this.vx = vx;
-    //this.vy = vy;
     this.angle = angle;
     this.speed = speed;
     this.speed = SPEED;
@@ -223,12 +230,7 @@ function Player(x, y, angle, speed, diameter) {
         var dx = (this.x+PLAYER_WIDTH/2) - mousepos.x,
             dy = (this.y+PLAYER_HEIGHT/2) - mousepos.y;
 
-//   var dx = (this.x) - mousepos.x,
-        //  dy = (this.y) - mousepos.y;
-
-
         this.angle = Math.atan2(dy, dx);
-        //console.log('angle:',this.angle);
 
         this.x -= this.speed*Math.cos(this.angle);
         this.y -= this.speed*Math.sin(this.angle);
@@ -252,9 +254,7 @@ function SpriteImage(img, x, y, width, height) {
         ctx.translate(w/2, h/2);
         ctx.rotate(angle);
         ctx.translate(-w/2, -h/2);
-        //ctx.fillRect(0, 0, w, h);
 
-        //console.log('angle:',angle);
         ctx.drawImage(this.img,
             this.x, this.y,
             w, h,
@@ -273,14 +273,6 @@ function Sprite(spritesheet, x, y, width, height, nbImages,
     this.nbCurrentTicks=0;
 
     // let's process the row in the big image, and extract all sprites
-    // for a given posture
-    // of animation
-    // we extract the subimage of WALKING
-    for(var i = FIRSTFRAME; i < nbImages + FIRSTFRAME; i++) {
-
-        this.spriteImages[i - FIRSTFRAME] = new SpriteImage(spritesheet,
-            x+i*width, y, width, height);
-    }
 
     // we extract the subimage of ATACKING
     for(var j = FIRSTFRAME; j < nbImages + FIRSTFRAME; j++) {
@@ -300,24 +292,11 @@ function Sprite(spritesheet, x, y, width, height, nbImages,
         // recenter the coordinate system in the middle
         // the rectangle. Like that it will rotate around
         // this point instead of top left corner
-        //ctx.translate(z.x -this.width/2, z.y -this.height/2);
+
 
         // draw the sprite with the current image
         this.spriteImages[z.currentFrame].render(z.x, z.y,
             scale,z.width, z.height, z.angle);
-
-
-        // increment the number of ticks of animation
-        z.nbCurrentTicks++;
-
-        if(z.nbCurrentTicks > this.nbTicksBetweenRedraws) {
-            // enough time elapsed, let's go to the next image
-            z.currentFrame++;
-            if(z.currentFrame == this.nbFrames) {
-                z.currentFrame=0;
-            }
-            z.nbCurrentTicks = 0;
-        }
 
     };
     this.render = function(x, y, scale) {
@@ -325,7 +304,8 @@ function Sprite(spritesheet, x, y, width, height, nbImages,
         this.spriteImages[0].render(x, y, scale,z.width, z.height);
     };
 }
-//****************************************************************
+
+
 function initSprites(spritesheet, spriteWidth, spriteHeight, nbLinesOfSprites,
                      nbSpritesPerLine) {
 
@@ -366,20 +346,45 @@ function createPlayers(numberOfPlayers) {
 
 
 
-/*function detectCollison(PlayPos, CellPos){
+function detectCollison(PlayPos, CellPos){
 
-    // local variables: console.log(play.x) and console.log(cell.cellX)
-    // get them from functions updateCell mainloop
+    // set x and y to center
+    var PlayH = PlayPos.width / 2;
+    var PlayW = PlayPos.height / 2;
+    var CellH = CellPos.width / 2;
+    var CellW = CellPos.height /2;
+
     if (PlayPos.x < CellPos.x + CellPos.width &&
         PlayPos.x + PlayPos.width > CellPos.x &&
         PlayPos.y < CellPos.y + CellPos.height &&
-        PlayPos.height + PlayPos.y > CellPos.y)
-    {
-        console.log('collision detected!');
-    }
+        PlayPos.y + PlayPos.height > CellPos.y)
+    /*cenPlayX < cenCellX + 50 &&
+    cenPlayX + 50 > cenCellX &&
+    cenPlayY < cenCellY + 50 &&
+    cenPlayY + 50 > cenCellY)*/
+     {
+         var strPPX = PlayPos.x.toFixed(0);
+         var strPPY = PlayPos.y.toFixed(0);
+         var consoleplayer = strPPX + ", " + strPPY;
+         console.log("Player X,Y: ");
+         console.log(consoleplayer);
+
+         var strCPX = CellPos.x.toFixed(0);
+         var strCPY = CellPos.y.toFixed(0);
+         var consolecell = strCPX + ", " + strCPY;
+         console.log("Cell X,Y: ");
+         console.log(consolecell);
+
+         console.log('is dead detectedcollision');
+
+         isdead = true;
+         return isdead;
+     }
+
+     return isdead;
+ }
 
 
-}*/
 
 
 
